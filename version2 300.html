@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechNova - Smart Solutions</title>
+
+    <!-- Google Font: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0A0B0F;
+            --primary-green: #00FFC2;
+            --text-light: #B4B9C4;
+            --text-white: #FFFFFF;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --sidebar-bg: linear-gradient(180deg, #00FFC2 0%, #00D1A1 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* --- Main Content (Left Side) --- */
+        .main-content {
+            width: 65%;
+            padding: 2rem 4rem;
+            background: radial-gradient(circle at 50% 50%, rgba(20, 22, 31, 0.5) 0%, var(--bg-dark) 70%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header / Navigation --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .logo span {
+            font-weight: 400;
+            color: var(--primary-green);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--primary-green);
+            text-shadow: 0 0 10px rgba(0, 255, 194, 0.5);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-title {
+            font-size: 6rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title .highlight {
+            color: var(--primary-green);
+            display: block;
+        }
+
+        .hero-title .normal {
+            color: var(--text-white);
+            display: block;
+        }
+
+        .hero-description {
+            max-width: 400px;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--primary-green);
+        }
+        
+        .cta-button {
+            background-color: var(--primary-green);
+            color: var(--bg-dark);
+            text-decoration: none;
+            padding: 0.9rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 255, 194, 0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 194, 0.4);
+        }
+
+        /* --- Info Grid at the Bottom --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding-top: 3rem;
+            margin-top: auto; /* Pushes the grid to the bottom */
+        }
+
+        .info-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .info-card h3 {
+            color: var(--text-white);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-card.large-stat {
+            grid-column: 2 / 3;
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .large-stat .stat-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            line-height: 1;
+        }
+        
+        .large-stat p {
+            font-size: 1rem;
+            color: var(--text-white);
+        }
+
+        /* --- Sidebar (Right Side) --- */
+        .sidebar {
+            width: 35%;
+            background: var(--sidebar-bg);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* For positioning the main image */
+        }
+
+        .sidebar-header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .login-button {
+            background-color: transparent;
+            color: var(--bg-dark);
+            border: 2px solid var(--bg-dark);
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+        }
+
+        .sidebar-image {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-image img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .sidebar-promo {
+            text-align: center;
+            color: var(--bg-dark);
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 1200px) {
+            .hero-title { font-size: 5rem; }
+            .main-content { padding: 2rem; }
+        }
+
+        @media (max-width: 992px) {
+            .container { flex-direction: column; }
+            .main-content, .sidebar { width: 100%; }
+            .sidebar { padding: 2rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .info-card.large-stat { grid-row: auto; }
+            header { flex-direction: column; gap: 1rem; }
+            nav ul { justify-content: center; flex-wrap: wrap; }
+            .hero { text-align: center; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Main Content (Dark Area on the Left) -->
+        <main class="main-content">
+            <header>
+                <div class="logo">Tech<span>Nova</span></div>
+                <nav>
+                    <ul>
+                        <li><a href="#">HOME</a></li>
+                        <li><a href="#">ABOUT US</a></li>
+                        <li><a href="#">SERVICES</a></li>
+                        <li><a href="#">CONTACT US</a></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <section class="hero">
+                <h1 class="hero-title">
+                    <span class="highlight">SMART</span>
+                    <span class="normal">SOLUTIONS</span>
+                </h1>
+                <p class="hero-description">
+                    Innovative solutions in AI, IoT, and Blockchain to drive digital transformation and enhance your business efficiency.
+                </p>
+                <a href="#" class="cta-button">Explore Solutions &rarr;</a>
+            </section>
+
+            <section class="info-grid">
+                <div class="info-card">
+                    <h3>3-Day</h3>
+                    <p>Money-Back Guarantee</p>
+                </div>
+                <div class="info-card">
+                    <h3>Bandwidth</h3>
+                    <p>No server restrictions on the amount</p>
+                </div>
+                <div class="info-card large-stat">
+                    <div class="stat-number">124 K</div>
+                    <p>Projects Delivered</p>
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.5rem;">Revolutionizing Technology for a Smarter Tomorrow</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sidebar (Green Area on the Right) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <button class="login-button">Login</button>
+            </div>
+            
+            <div class="sidebar-image">
+                <!-- IMPORTANT: Replace this placeholder with the actual URL of your image -->
+                <img src="https://i.ibb.co/L5rK3x0/tech-woman-placeholder.png" alt="Futuristic technology solutions">
+            </div>
+
+            <div class="sidebar-promo">
+                <p>Empowering Industries with Next-Gen Tech</p>
+            </div>
+        </aside>
+    </div>
+
+</body>
+</html>
