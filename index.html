@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management (With Filters)</title>
-    
+    <title>Product Management</title>
+
     <!-- CSS styles are embedded directly in the HTML file -->
     <style>
+        /* 
+         NEW COLOR PALETTE:
+         The color scheme has been updated from the original blue theme 
+         to a more modern teal and dark charcoal theme.
+        */
         :root {
-            --sidebar-bg: #1e2a38;
-            --sidebar-text: #a9b7c5;
-            --sidebar-active-bg: #007bff;
-            --content-bg: #f7f9fc;
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: #ecf0f1;
+            --sidebar-active-bg: #1abc9c;
+            --content-bg: #ecf0f1;
             --header-bg: #ffffff;
-            --border-color: #e1e6ef;
-            --primary-blue: #007bff;
-            --text-dark: #212529;
-            --text-light: #6c757d;
-            --danger-color: #dc3545;
+            --border-color: #bdc3c7;
+            --primary-blue: #1abc9c; /* Renamed for consistency, but now teal */
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --danger-color: #e74c3c;
         }
 
         body {
@@ -27,6 +32,75 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            color: var(--text-dark);
+        }
+        
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-blue); /* Updated preloader color */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Front Page --- */
+        #frontPage {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 9990;
+            width: 100%;
+            height: 100%;
+            /* Updated gradient to match new theme */
+            background: linear-gradient(to right, #2c3e50, #1abc9c); 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #frontPage h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        #frontPage p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        #enterDashboardBtn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--sidebar-bg);
+            background-color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #enterDashboardBtn:hover {
+            transform: scale(1.05);
         }
 
         /* --- Sidebar --- */
@@ -38,25 +112,26 @@
             display: flex;
             flex-direction: column;
             padding: 1rem;
+            transition: transform 0.3s ease-in-out;
         }
-        
+
         .sidebar-header {
             padding: 0.5rem 0.5rem 1.5rem 0.5rem;
             font-weight: 600;
             font-size: 1.2rem;
             color: white;
-            border-bottom: 1px solid #344354;
+            border-bottom: 1px solid #3b5068; /* Slightly lighter border */
         }
 
         .sidebar nav {
             flex-grow: 1;
         }
-        
+
         .sidebar-section-title {
             text-transform: uppercase;
             font-size: 0.75rem;
             padding: 1.5rem 0.5rem 0.5rem;
-            color: #6a7a8a;
+            color: #95a5a6;
         }
 
         .sidebar ul {
@@ -64,7 +139,7 @@
             padding: 0;
             margin: 0;
         }
-        
+
         .sidebar a {
             display: block;
             color: var(--sidebar-text);
@@ -74,11 +149,11 @@
             margin-bottom: 0.25rem;
             transition: background-color 0.2s, color 0.2s;
         }
-        
+
         .sidebar a:hover {
-            background-color: #2c3a4a;
+            background-color: #34495e;
         }
-        
+
         .sidebar a.active {
             background-color: var(--sidebar-active-bg);
             color: white;
@@ -91,47 +166,53 @@
             flex-direction: column;
             overflow: hidden;
         }
-        
+
         /* --- Content Header --- */
         .content-header {
             background-color: var(--header-bg);
             padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
+
         .content-header h1 {
             margin: 0;
             font-size: 1.75rem;
         }
-        
+
         /* --- Action Bar --- */
         .action-bar {
             display: flex;
             align-items: center;
             gap: 1rem;
             padding: 1rem 1.5rem;
-            background-color: #fdfdff;
+            background-color: #ffffff;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
         }
-        
+
         .action-bar input, .action-bar select {
             padding: 0.5rem 0.75rem;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.9rem;
-        }
-        
-        #filterInput {
-            flex-grow: 1;
-            max-width: 400px;
+            background-color: #fff;
+            color: var(--text-dark);
         }
 
-        #categoryFilter {
+        #filterInput {
+            flex-grow: 1;
+            min-width: 200px;
+        }
+
+        #categoryFilter, #subCategoryFilter {
             flex-shrink: 0;
         }
-        
-        .action-bar .btn-primary {
+
+        .action-bar .btn-primary, .btn-primary {
             background-color: var(--primary-blue);
             color: white;
             border: none;
@@ -139,40 +220,52 @@
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            margin-left: auto; /* Push button to the right */
+            transition: background-color 0.2s;
         }
         
+        .action-bar .btn-primary:hover, .btn-primary:hover {
+            background-color: #17a78a;
+        }
+        
+        .action-bar .btn-primary {
+            margin-left: auto; /* Push button to the right */
+        }
+
         /* --- Table Container --- */
         .table-container {
             overflow: auto; /* This makes the container scrollable */
             padding: 1.5rem;
             flex-grow: 1;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             background-color: var(--header-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        
+
         th, td {
             padding: 0.9rem 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
             white-space: nowrap; /* Prevent text wrapping */
         }
-        
+
         thead th {
-            background-color: #f8f9fa;
+            background-color: #f9f9f9;
             font-size: 0.75rem;
             text-transform: uppercase;
             color: var(--text-light);
+            border-top: 1px solid var(--border-color);
         }
-        
+
         tbody tr:hover {
-            background-color: #f1f3f5;
+            background-color: #f5f7fa;
         }
-        
+
         .btn-delete {
             background-color: var(--danger-color);
             color: white;
@@ -181,6 +274,10 @@
             font-size: 0.8rem;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-delete:hover {
+            background-color: #c0392b;
         }
 
         /* --- Modal for Adding Data --- */
@@ -205,7 +302,7 @@
             width: 90%;
             max-width: 500px;
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -214,21 +311,21 @@
             padding-bottom: 1rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .modal-header h2 { margin: 0; }
         .close-btn { font-size: 1.5rem; cursor: pointer; color: #aaa; }
-        
+
         .form-group {
             margin-bottom: 1rem;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: var(--text-dark);
         }
-        
+
         .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
@@ -237,17 +334,71 @@
             box-sizing: border-box;
             font-size: 1rem;
         }
-        
+
         .modal-footer {
             margin-top: 1.5rem;
             text-align: right;
+        }
+
+        /* --- Responsive Design --- */
+        .menu-btn {
+            display: none; /* Hidden by default */
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                width: 100%;
+            }
+            .content-header h1 {
+                font-size: 1.25rem;
+            }
+            .menu-btn {
+                display: block; /* Show on mobile */
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-bar .btn-primary {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+            #filterInput {
+                max-width: none;
+            }
         }
     </style>
 </head>
 <body>
 
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <div id="frontPage">
+        <h1>Welcome to Product Management</h1>
+        <p>Your solution for organizing and tracking products efficiently.</p>
+        <button id="enterDashboardBtn">Enter Dashboard</button>
+    </div>
+
     <!-- Left Sidebar Navigation -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">Admin Panel</div>
         <div class="sidebar-section-title">Store Management</div>
         <ul>
@@ -259,11 +410,13 @@
     <!-- Main Content Area -->
     <main class="main-content">
         <header class="content-header">
+            <button class="menu-btn" id="menuBtn">&#9776;</button>
             <h1>Product Management</h1>
         </header>
 
         <div class="action-bar">
             <select id="categoryFilter"></select>
+            <select id="subCategoryFilter"></select>
             <input type="text" id="filterInput" placeholder="Filter by Name or ID...">
             <button class="btn-primary" id="openModalBtn">ADD NEW PRODUCT</button>
         </div>
@@ -273,6 +426,7 @@
                 <thead>
                     <tr>
                         <th>Category</th>
+                        <th>Sub-Category</th>
                         <th>Product Name</th>
                         <th>Product ID</th>
                         <th>Actions</th>
@@ -284,7 +438,7 @@
             </table>
         </div>
     </main>
-    
+
     <!-- Modal for Adding New Data -->
     <div id="addDataModal" class="modal">
         <div class="modal-content">
@@ -297,11 +451,12 @@
                     <label for="productCategory">Category</label>
                     <select id="productCategory" required>
                         <option value="" disabled selected>Select a category</option>
-                        <option value="Smartphones">Smartphones</option>
-                        <option value="Laptops">Laptops</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Wearables">Wearables</option>
-                        <option value="Tablets">Tablets</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="productSubCategory">Sub-Category</label>
+                    <select id="productSubCategory" required>
+                        <option value="" disabled selected>Select a sub-category</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -339,25 +494,42 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
+
         // --- GLOBAL VARIABLES ---
         let allProducts = []; // Local cache of all products from Firestore
+        const categoryData = {
+            "Smartphones": ["Apple", "Samsung", "Google", "OnePlus"],
+            "Laptops": ["Apple", "Dell", "HP", "Lenovo"],
+            "Accessories": ["Cases", "Chargers", "Headphones"],
+            "Wearables": ["Smartwatches", "Fitness Trackers"],
+            "Tablets": ["Apple", "Samsung", "Amazon"]
+        };
+
 
         // --- DOM Elements ---
         const tableBody = document.getElementById('dataTableBody');
         const filterInput = document.getElementById('filterInput');
         const categoryFilter = document.getElementById('categoryFilter');
+        const subCategoryFilter = document.getElementById('subCategoryFilter');
         const modal = document.getElementById('addDataModal');
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.querySelector('.close-btn');
         const addDataForm = document.getElementById('addDataForm');
+        const productCategory = document.getElementById('productCategory');
+        const productSubCategory = document.getElementById('productSubCategory');
+        const preloader = document.getElementById('preloader');
+        const frontPage = document.getElementById('frontPage');
+        const enterDashboardBtn = document.getElementById('enterDashboardBtn');
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+
 
         // --- CORE FUNCTIONS ---
         const renderTable = (dataToRender) => {
-            tableBody.innerHTML = ''; 
-            
+            tableBody.innerHTML = '';
+
             if (dataToRender.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No matching products found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No matching products found.</td></tr>`;
                 return;
             }
 
@@ -365,6 +537,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.category}</td>
+                    <td>${item.subCategory}</td>
                     <td>${item.name}</td>
                     <td>${item.productId}</td>
                     <td><button class="btn-delete" data-id="${item.id}">Delete</button></td>
@@ -373,39 +546,56 @@
             });
         };
 
-        const populateCategoryFilter = () => {
-            const currentValue = categoryFilter.value; 
+        const populateFilters = () => {
+            const selectedCategory = categoryFilter.value;
+            const selectedSubCategory = subCategoryFilter.value;
+            
+            // Populate main category filter
             const categories = [...new Set(allProducts.map(p => p.category))];
             categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
             categories.sort().forEach(cat => {
                 categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
             });
-            categoryFilter.value = currentValue; 
+            categoryFilter.value = selectedCategory || 'all';
+            
+            // Populate sub-category filter based on selected category
+            subCategoryFilter.innerHTML = `<option value="all">All Sub-Categories</option>`;
+            if (selectedCategory && selectedCategory !== 'all') {
+                const subCategories = [...new Set(allProducts.filter(p => p.category === selectedCategory).map(p => p.subCategory))];
+                subCategories.sort().forEach(subCat => {
+                    subCategoryFilter.innerHTML += `<option value="${subCat}">${subCat}</option>`;
+                });
+            }
+            subCategoryFilter.value = selectedSubCategory || 'all';
         };
+
 
         // THIS IS THE MAIN FUNCTION FOR FILTERING AND SEARCHING
         const filterAndRender = () => {
-            // Get the current text from the search bar
             const searchTerm = filterInput.value.toLowerCase();
-            // Get the currently selected category from the dropdown
             const selectedCategory = categoryFilter.value;
-            
+            const selectedSubCategory = subCategoryFilter.value;
+
             let filteredData = allProducts;
 
-            // First, filter the list by the selected category
+            // Filter by category
             if (selectedCategory !== 'all') {
                 filteredData = filteredData.filter(item => item.category === selectedCategory);
             }
 
-            // Second, filter the already-filtered list by the search term
+            // Filter by sub-category
+            if (selectedSubCategory !== 'all') {
+                filteredData = filteredData.filter(item => item.subCategory === selectedSubCategory);
+            }
+
+            // Filter by search term
             if (searchTerm) {
-                filteredData = filteredData.filter(item => 
+                filteredData = filteredData.filter(item =>
                     item.name.toLowerCase().includes(searchTerm) ||
                     item.productId.toLowerCase().includes(searchTerm)
                 );
             }
 
-            // Finally, render the table with the results
             renderTable(filteredData);
         };
         
@@ -415,25 +605,42 @@
 
         onSnapshot(q, (snapshot) => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            populateCategoryFilter(); 
-            filterAndRender();      
+            populateFilters();
+            filterAndRender();
+        }, (error) => {
+            console.error("Error fetching products:", error);
+            preloader.style.display = 'none'; // Hide preloader even if there's an error
         });
 
         // --- EVENT HANDLERS ---
-        // THIS MAKES THE SEARCH BAR WORK IN REAL-TIME
         filterInput.addEventListener('keyup', filterAndRender);
-        categoryFilter.addEventListener('change', filterAndRender);
+        categoryFilter.addEventListener('change', () => {
+            subCategoryFilter.value = 'all';
+            populateFilters();
+            filterAndRender();
+        });
+        subCategoryFilter.addEventListener('change', filterAndRender);
 
-        // Add new data to Firestore
+        productCategory.addEventListener('change', () => {
+            const selectedCategory = productCategory.value;
+            productSubCategory.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
+            if (categoryData[selectedCategory]) {
+                categoryData[selectedCategory].forEach(subCat => {
+                    productSubCategory.innerHTML += `<option value="${subCat}">${subCat}</option>`;
+                });
+            }
+        });
+
         addDataForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const newProduct = {
                 name: document.getElementById('productName').value,
                 productId: document.getElementById('productId').value,
                 category: document.getElementById('productCategory').value,
+                subCategory: document.getElementById('productSubCategory').value,
             };
-            
+
             try {
                 await addDoc(productsCollection, newProduct);
                 addDataForm.reset();
@@ -444,7 +651,6 @@
             }
         });
 
-        // Handle delete button clicks
         tableBody.addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-delete')) {
                 const docId = e.target.dataset.id;
@@ -460,13 +666,40 @@
         });
 
         // --- MODAL CONTROLS ---
-        openModalBtn.onclick = () => { modal.style.display = 'flex'; }
+        openModalBtn.onclick = () => {
+            productCategory.innerHTML = '<option value="" disabled selected>Select a category</option>';
+            for (const category in categoryData) {
+                productCategory.innerHTML += `<option value="${category}">${category}</option>`;
+            }
+            productSubCategory.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
+            modal.style.display = 'flex';
+        }
         closeModalBtn.onclick = () => { modal.style.display = 'none'; }
         window.onclick = (event) => {
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
         }
+        
+        // --- Page Load and Front Page Logic ---
+        window.addEventListener('load', () => {
+            // A short delay can make the preloader feel more intentional
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 500);
+        });
+
+        enterDashboardBtn.addEventListener('click', () => {
+            frontPage.style.opacity = '0';
+            setTimeout(() => {
+                frontPage.style.display = 'none';
+            }, 500); // Match timeout with CSS transition duration
+        });
+        
+        // --- Responsive Sidebar Toggle ---
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
     </script>
 </body>
 </html>
