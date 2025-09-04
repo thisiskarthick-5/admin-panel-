@@ -3,398 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Management</title>
+    <title>Admin Dashboard</title>
+    <!-- Google Fonts Import for Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <!-- CSS styles are embedded directly in the HTML file -->
+    <!-- CSS styles -->
     <style>
-        /* 
-         NEW COLOR PALETTE:
-         The color scheme has been updated from the original blue theme 
-         to a more modern teal and dark charcoal theme.
-        */
         :root {
-            --sidebar-bg: #2c3e50;
-            --sidebar-text: #ecf0f1;
-            --sidebar-active-bg: #1abc9c;
-            --content-bg: #ecf0f1;
-            --header-bg: #ffffff;
-            --border-color: #bdc3c7;
-            --primary-blue: #1abc9c; /* Renamed for consistency, but now teal */
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --danger-color: #e74c3c;
+            --firebase-amber: #ffab00;
+            --firebase-amber-dark: #e69a00;
+            --background-dark: #202124; 
+            --surface-dark: #303134;   
+            --text-primary-light: #ffffff;
+            --text-secondary-light: #bdc1c6;
+            --border-color-dark: #5f6368;
+            --danger-color: #e57373; 
+            --font-family-main: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        /* ===== Universal Box Sizing & Reset ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
-            background-color: var(--content-bg);
+            padding: 0;
+        }
+
+        /* --- General Body & Font Styles --- */
+        body {
+            font-family: var(--font-family-main);
+            background-color: var(--background-dark);
             display: flex;
             height: 100vh;
             overflow: hidden;
-            color: var(--text-dark);
+            color: var(--text-primary-light);
+            font-size: 16px;
         }
         
-        /* --- Preloader --- */
-        #preloader {
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 9999;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            background: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid var(--primary-blue); /* Updated preloader color */
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* --- Front Page --- */
-        #frontPage {
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 9990;
-            width: 100%;
-            height: 100%;
-            /* Updated gradient to match new theme */
-            background: linear-gradient(to right, #2c3e50, #1abc9c); 
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transition: opacity 0.5s ease-out;
-        }
-        #frontPage h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        #frontPage p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        #enterDashboardBtn {
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--sidebar-bg);
-            background-color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        #enterDashboardBtn:hover {
-            transform: scale(1.05);
-        }
+        /* --- Preloader & Front Page --- */
+        #preloader { position: fixed; left: 0; top: 0; z-index: 9999; width: 100%; height: 100%; overflow: visible; background: var(--background-dark); display: flex; justify-content: center; align-items: center; }
+        .loader { border: 5px solid var(--surface-dark); border-top: 5px solid var(--firebase-amber); border-radius: 50%; width: 60px; height: 60px; animation: spin 1.5s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #frontPage { position: fixed; left: 0; top: 0; z-index: 9990; width: 100%; height: 100%; background: var(--background-dark); color: var(--text-primary-light); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; transition: opacity 0.8s ease-out; overflow: hidden; padding: 1rem; }
+        #three-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #frontPage h1, #frontPage p, #frontPage #enterDashboardBtn { position: relative; z-index: 2; margin-bottom: 1.5rem; }
+        #frontPage h1 { font-size: 5.5rem; }
+        #frontPage p { font-size: 1.5rem; max-width: 600px; color: var(--text-secondary-light); margin-bottom: 3rem; }
+        @keyframes slide-in-down { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slide-in-up { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        #enterDashboardBtn { padding: 1rem 2.5rem; font-size: 1.2rem; font-weight: 500; color: var(--background-dark); background-color: var(--firebase-amber); border: none; border-radius: 8px; cursor: pointer; transition: transform 0.2s, background-color 0.3s; }
+        #enterDashboardBtn:hover { transform: scale(1.05); background-color: var(--firebase-amber-dark); }
 
         /* --- Sidebar --- */
-        .sidebar {
-            width: 240px;
-            flex-shrink: 0;
-            background-color: var(--sidebar-bg);
-            color: var(--sidebar-text);
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
-            transition: transform 0.3s ease-in-out;
-        }
+        .sidebar { width: 250px; flex-shrink: 0; background-color: var(--surface-dark); color: var(--text-primary-light); display: flex; flex-direction: column; border-right: 1px solid var(--border-color-dark); transition: transform 0.3s ease-in-out; }
+        .sidebar-header { padding: 1.5rem; font-weight: 700; font-size: 1.5rem; color: var(--text-primary-light); border-bottom: 1px solid var(--border-color-dark); }
+        .sidebar-section-title { text-transform: uppercase; font-size: 0.8rem; font-weight: 500; padding: 2rem 1.5rem 0.75rem; color: var(--text-secondary-light); }
+        .sidebar ul { list-style: none; }
+        .sidebar a { display: block; color: var(--text-secondary-light); text-decoration: none; padding: 0.8rem 1.5rem; margin: 0 1rem 0.25rem; border-radius: 6px; font-weight: 500; transition: background-color 0.2s, color 0.2s; cursor: pointer; }
+        .sidebar a:hover { background-color: rgba(255, 171, 0, 0.1); color: var(--firebase-amber); }
+        .sidebar a.active { background-color: var(--firebase-amber); color: var(--background-dark); font-weight: 700; }
 
-        .sidebar-header {
-            padding: 0.5rem 0.5rem 1.5rem 0.5rem;
-            font-weight: 600;
-            font-size: 1.2rem;
-            color: white;
-            border-bottom: 1px solid #3b5068; /* Slightly lighter border */
-        }
-
-        .sidebar nav {
-            flex-grow: 1;
-        }
-
-        .sidebar-section-title {
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            padding: 1.5rem 0.5rem 0.5rem;
-            color: #95a5a6;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar a {
-            display: block;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            margin-bottom: 0.25rem;
-            transition: background-color 0.2s, color 0.2s;
-        }
-
-        .sidebar a:hover {
-            background-color: #34495e;
-        }
-
-        .sidebar a.active {
-            background-color: var(--sidebar-active-bg);
-            color: white;
-        }
-
-        /* --- Main Content Area --- */
+        /* --- Main Content & Header (UPDATED) --- */
         .main-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* Important for containing children */
+            min-width: 0; /* THE MOST CRITICAL FIX FOR FLEXBOX OVERFLOW */
         }
-
-        /* --- Content Header --- */
-        .content-header {
-            background-color: var(--header-bg);
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .content-header h1 {
-            margin: 0;
-            font-size: 1.75rem;
-        }
+        .content-header { background-color: var(--surface-dark); padding: 1rem 2rem; border-bottom: 1px solid var(--border-color-dark); flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+        .content-header h1 { font-size: 2rem; font-weight: 500; }
 
         /* --- Action Bar --- */
-        .action-bar {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            background-color: #ffffff;
-            border-bottom: 1px solid var(--border-color);
-            flex-wrap: wrap;
-        }
+        .action-bar { display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem 2rem; background-color: var(--background-dark); border-bottom: 1px solid var(--border-color-dark); flex-wrap: wrap; }
+        .action-bar input { padding: 0.75rem 1rem; border: 1px solid var(--border-color-dark); border-radius: 8px; font-size: 1rem; background-color: var(--surface-dark); color: var(--text-primary-light); transition: border-color 0.3s, box-shadow 0.3s; flex-grow: 1; min-width: 200px; }
+        .action-bar input:focus { outline: none; border-color: var(--firebase-amber); box-shadow: 0 0 0 2px rgba(255, 171, 0, 0.3); }
+        .action-bar-right-group { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+        .count-badge { background-color: var(--surface-dark); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; border: 1px solid var(--border-color-dark); white-space: nowrap; }
+        .count-badge span { font-weight: 700; color: var(--firebase-amber); }
+        .btn-primary { background-color: var(--firebase-amber); color: var(--background-dark); border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background-color 0.2s, transform 0.2s; white-space: nowrap; }
+        .btn-primary:hover { background-color: var(--firebase-amber-dark); transform: translateY(-1px); }
+        .btn-primary:disabled { background-color: var(--border-color-dark); cursor: not-allowed; transform: none; }
 
-        .action-bar input, .action-bar select {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            background-color: #fff;
-            color: var(--text-dark);
+        /* --- Table Container & Styling (UPDATED) --- */
+        .table-container { 
+            flex-grow: 1; 
+            overflow-x: auto; /* THIS IS KEY: Allows table to be scrolled horizontally */
+            padding: 0 2rem 2rem 2rem; 
         }
-
-        #filterInput {
-            flex-grow: 1;
-            min-width: 200px;
-        }
-
-        #categoryFilter, #subCategoryFilter {
-            flex-shrink: 0;
-        }
-
-        .action-bar .btn-primary, .btn-primary {
-            background-color: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+        table { width: 100%; border-collapse: collapse; background-color: var(--surface-dark); border-radius: 12px; overflow: hidden; }
+        th, td { padding: 1.25rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border-color-dark); white-space: nowrap; }
+        thead th { font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary-light); font-weight: 500; background-color: #3c4043; }
+        tbody tr { transition: background-color 0.2s; }
+        tbody tr:hover { background-color: #3c4043; }
+        tbody tr:last-child td { border-bottom: none; }
+        .btn-delete { background-color: transparent; color: var(--danger-color); border: 1px solid transparent; padding: 0.4rem 0.8rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.2s, border-color 0.2s; }
+        .btn-delete:hover { background-color: rgba(229, 115, 115, 0.1); border-color: var(--danger-color); }
         
-        .action-bar .btn-primary:hover, .btn-primary:hover {
-            background-color: #17a78a;
-        }
-        
-        .action-bar .btn-primary {
-            margin-left: auto; /* Push button to the right */
-        }
+        /* --- Management Views --- */
+        .management-view { display: none; height: 100%; flex-direction: column; }
+        .management-view.active { display: flex; }
 
-        /* --- Table Container --- */
-        .table-container {
-            overflow: auto; /* This makes the container scrollable */
-            padding: 1.5rem;
-            flex-grow: 1;
+        /* --- Animated Modal --- */
+        .modal { 
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.7); 
+            justify-content: center; 
+            align-items: flex-start;
+            padding: 5vh 1rem;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--header-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        th, td {
-            padding: 0.9rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap; /* Prevent text wrapping */
-        }
-
-        thead th {
-            background-color: #f9f9f9;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-light);
-            border-top: 1px solid var(--border-color);
-        }
-
-        tbody tr:hover {
-            background-color: #f5f7fa;
-        }
-
-        .btn-delete {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 0.3rem 0.6rem;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-
-        /* --- Modal for Adding Data --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
         .modal-content {
-            background-color: #fefefe;
-            padding: 2rem;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
+            background-color: var(--surface-dark); padding: 2.5rem; border-radius: 12px; width: 100%; 
+            max-width: 500px; 
+            animation: modal-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid var(--border-color-dark);
+            margin-bottom: 5vh;
         }
+        @keyframes modal-fade-in { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color-dark); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+        .modal-header h2 { font-size: 1.8rem; font-weight: 500; }
+        .close-btn { font-size: 2rem; cursor: pointer; color: var(--text-secondary-light); transition: color 0.2s, transform 0.3s; }
+        .close-btn:hover { color: var(--text-primary-light); transform: rotate(90deg); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.75rem; font-weight: 500; font-size: 1.1rem; color: var(--text-primary-light); }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color-dark); background-color: var(--background-dark); color: var(--text-primary-light); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--firebase-amber); box-shadow: 0 0 0 2px rgba(255, 171, 0, 0.3); }
+        .modal-footer { margin-top: 2rem; text-align: right; }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
+        /* --- Checkbox Styling --- */
+        .form-group-checkbox { display: flex; align-items: center; gap: 0.75rem; }
+        .form-group-checkbox input[type="checkbox"] { width: 1.25em; height: 1.25em; cursor: pointer; accent-color: var(--firebase-amber); }
 
-        .modal-header h2 { margin: 0; }
-        .close-btn { font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        /* --- Toast Notification Styles --- */
+        #toastContainer { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; max-width: 500px; }
+        .toast { padding: 12px 20px; border-radius: 8px; font-weight: 500; color: var(--text-primary-light); box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slide-in 0.3s ease-out, fade-out 0.5s ease-in 3.5s forwards; }
+        .toast.error { background-color: var(--danger-color); }
+        @keyframes slide-in { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fade-out { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-
-        .modal-footer {
-            margin-top: 1.5rem;
-            text-align: right;
-        }
-
-        /* --- Responsive Design --- */
-        .menu-btn {
-            display: none; /* Hidden by default */
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-dark);
-        }
-
+        /* --- Responsive Design (UPDATED) --- */
+        .menu-btn { display: none; background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text-primary-light); }
         @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100%;
-                z-index: 1000;
-                transform: translateX(-100%);
-            }
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            .main-content {
-                width: 100%;
-            }
-            .content-header h1 {
-                font-size: 1.25rem;
-            }
-            .menu-btn {
-                display: block; /* Show on mobile */
-            }
-            .action-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .action-bar .btn-primary {
-                margin-left: 0;
-                margin-top: 0.5rem;
-            }
-            #filterInput {
-                max-width: none;
+            body { font-size: 14px; }
+            #frontPage h1 { font-size: 3rem; }
+            #frontPage p { font-size: 1.1rem; }
+            .sidebar { position: fixed; left: 0; top: 0; height: 100%; z-index: 1000; transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { width: 100%; }
+            .content-header h1 { font-size: 1.5rem; }
+            .menu-btn { display: block; }
+            
+            /* Better padding on mobile */
+            .content-header, .action-bar { padding: 1rem 1rem; }
+            .table-container { padding: 0 1rem 1rem 1rem; }
+            
+            /* Action bar stacking */
+            .action-bar { flex-direction: column; align-items: stretch; gap: 1rem; }
+            .action-bar-right-group { margin-left: 0; margin-top: 0.5rem; width: 100%; justify-content: space-between; }
+            
+            /* CRITICAL: Reduce table cell padding and font size to prevent overflow */
+            th, td {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.85rem;
             }
         }
     </style>
 </head>
 <body>
-
-    <div id="preloader">
-        <div class="loader"></div>
-    </div>
+    <div id="toastContainer"></div>
+    <div id="preloader"><div class="loader"></div></div>
 
     <div id="frontPage">
-        <h1>Welcome to Product Management</h1>
-        <p>Your solution for organizing and tracking products efficiently.</p>
-        <button id="enterDashboardBtn">Enter Dashboard</button>
+        <canvas id="three-bg"></canvas>
+        <h1>Admin Dashboard</h1>
+        <p>Manage your store's categories, subcategories, and products with ease.</p>
+        <button id="enterDashboardBtn">Get Started</button>
     </div>
 
     <!-- Left Sidebar Navigation -->
@@ -402,8 +189,9 @@
         <div class="sidebar-header">Admin Panel</div>
         <div class="sidebar-section-title">Store Management</div>
         <ul>
-            <li><a href="#">Dashboard</a></li>
-            <li><a href="#" class="active">Products</a></li>
+            <li><a id="navCategory" data-view="categoryView" class="active">Category</a></li>
+            <li><a id="navSubcategory" data-view="subcategoryView">Subcategory</a></li>
+            <li><a id="navProduct" data-view="productView">Product</a></li>
         </ul>
     </nav>
 
@@ -411,61 +199,192 @@
     <main class="main-content">
         <header class="content-header">
             <button class="menu-btn" id="menuBtn">&#9776;</button>
-            <h1>Product Management</h1>
+            <h1 id="mainHeader">Category Management</h1>
         </header>
 
-        <div class="action-bar">
-            <select id="categoryFilter"></select>
-            <select id="subCategoryFilter"></select>
-            <input type="text" id="filterInput" placeholder="Filter by Name or ID...">
-            <button class="btn-primary" id="openModalBtn">ADD NEW PRODUCT</button>
+        <!-- CATEGORY VIEW -->
+        <div id="categoryView" class="management-view active">
+            <div class="action-bar">
+                <input type="text" class="filter-input" placeholder="Search by name or ID...">
+                <div class="action-bar-right-group">
+                    <div class="count-badge">Categories: <span id="categoryCount">0</span></div>
+                    <button class="btn-primary open-modal-btn" data-modal="categoryModal">ADD CATEGORY</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category ID</th>
+                            <th>Category Name (Eng)</th>
+                            <th>Category Name (Tamil)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data-table-body">
+                        <!-- Data will be injected here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Sub-Category</th>
-                        <th>Product Name</th>
-                        <th>Product ID</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="dataTableBody">
-                    <!-- Data rows will be injected here by JavaScript -->
-                </tbody>
-            </table>
+        <!-- SUBCATEGORY VIEW -->
+        <div id="subcategoryView" class="management-view">
+            <div class="action-bar">
+                <input type="text" class="filter-input" placeholder="Search by name or ID...">
+                 <div class="action-bar-right-group">
+                    <div class="count-badge">Subcategories: <span id="subcategoryCount">0</span></div>
+                    <button class="btn-primary open-modal-btn" data-modal="subcategoryModal">ADD SUBCATEGORY</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Parent Category</th>
+                            <th>Subcategory ID</th>
+                            <th>Subcategory Name (Eng)</th>
+                            <th>Subcategory Name (Tamil)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data-table-body">
+                         <!-- Data will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PRODUCT VIEW -->
+        <div id="productView" class="management-view">
+            <div class="action-bar">
+                <input type="text" class="filter-input" placeholder="Search by name or ID...">
+                <div class="action-bar-right-group">
+                    <div class="count-badge">Products: <span id="productCount">0</span></div>
+                    <button class="btn-primary open-modal-btn" data-modal="productModal">ADD PRODUCT</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Product ID</th>
+                            <th>Product Name (Eng)</th>
+                            <th>Product Name (Tamil)</th>
+                            <th>Rate</th>
+                            <th>Top Product</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="data-table-body">
+                         <!-- Data will be injected here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
-
-    <!-- Modal for Adding New Data -->
-    <div id="addDataModal" class="modal">
+    
+    <!-- MODALS -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Category</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form class="modal-form" data-collection="categories">
+                <div class="form-group">
+                    <label for="catId">Category ID</label>
+                    <input type="text" id="catId" name="catId" required>
+                </div>
+                <div class="form-group">
+                    <label for="catNameEng">Category Name (Eng)</label>
+                    <input type="text" id="catNameEng" name="catNameEng" required>
+                </div>
+                <div class="form-group">
+                    <label for="catNameTam">Category Name (Tamil)</label>
+                    <input type="text" id="catNameTam" name="catNameTam" required>
+                </div>
+                <div class="form-group">
+                    <label for="catImage">Image URL</label>
+                    <input type="url" id="catImage" name="catImage" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="subcategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Subcategory</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <form class="modal-form" data-collection="subcategories">
+                <div class="form-group">
+                    <label for="parentCategoryId">Parent Category</label>
+                    <select id="parentCategoryId" name="parentCategoryId" required>
+                        <option value="" disabled selected>Select a category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subcatId">Subcategory ID</label>
+                    <input type="text" id="subcatId" name="subcatId" required>
+                </div>
+                <div class="form-group">
+                    <label for="subcatNameEng">Subcategory Name (Eng)</label>
+                    <input type="text" id="subcatNameEng" name="subcatNameEng" required>
+                </div>
+                <div class="form-group">
+                    <label for="subcatNameTam">Subcategory Name (Tamil)</label>
+                    <input type="text" id="subcatNameTam" name="subcatNameTam" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary">Add Subcategory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Add New Product</h2>
                 <span class="close-btn">&times;</span>
             </div>
-            <form id="addDataForm">
+            <form class="modal-form" data-collection="products">
                 <div class="form-group">
-                    <label for="productCategory">Category</label>
-                    <select id="productCategory" required>
+                    <label for="prodCategory">Category</label>
+                    <select id="prodCategory" name="prodCategoryId" required>
                         <option value="" disabled selected>Select a category</option>
                     </select>
                 </div>
                  <div class="form-group">
-                    <label for="productSubCategory">Sub-Category</label>
-                    <select id="productSubCategory" required>
+                    <label for="prodSubCategory">Sub-Category</label>
+                    <select id="prodSubCategory" name="prodSubCategoryId" required>
                         <option value="" disabled selected>Select a sub-category</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="productName">Product Name</label>
-                    <input type="text" id="productName" placeholder="e.g., iPhone 15 Pro" required>
+                    <label for="prodId">Product ID</label>
+                    <input type="text" id="prodId" name="prodId" required>
                 </div>
                 <div class="form-group">
-                    <label for="productId">Product ID</label>
-                    <input type="text" id="productId" placeholder="e.g., A15P-256-NT" required>
+                    <label for="prodNameEng">Product Name (Eng)</label>
+                    <input type="text" id="prodNameEng" name="prodNameEng" required>
+                </div>
+                 <div class="form-group">
+                    <label for="prodNameTam">Product Name (Tamil)</label>
+                    <input type="text" id="prodNameTam" name="prodNameTam" required>
+                </div>
+                <div class="form-group">
+                    <label for="prodRate">Rate</label>
+                    <input type="number" id="prodRate" name="prodRate" required>
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label for="isTopProduct">Top Product</label>
+                    <input type="checkbox" id="isTopProduct" name="isTopProduct">
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn-primary">Save Product</button>
@@ -476,230 +395,359 @@
 
     <!-- JavaScript logic using ES Modules for Firebase -->
     <script type="module">
-        // Import functions from the Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // --- YOUR FIREBASE CONFIGURATION ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyD-4hqIpRkEDA89ob2p4N89-C9b6Wl7-vk",
-          authDomain: "product-handling.firebaseapp.com",
-          projectId: "product-handling",
-          storageBucket: "product-handling.appspot.com",
-          messagingSenderId: "229189990697",
-          appId: "1:229189990697:web:79227c24a9268d98ef9f38",
-          measurementId: "G-XKE5MX83H6"
-        };
+        // ===================================================================================
+        // IMPORTANT: REPLACE THIS WITH YOUR ACTUAL FIREBASE CONFIG FROM THE FIREBASE CONSOLE
+        // ===================================================================================
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            const firebaseConfig = {
+            apiKey: "AIzaSyD-4hqIpRkEDA89ob2p4N89-C9b6Wl7-vk",
+            authDomain: "product-handling.firebaseapp.com",
+            projectId: "product-handling",
+            storageBucket: "product-handling.firebasestorage.app",
+            messagingSenderId: "229189990697",
+            appId: "1:229189990697:web:79227c24a9268d98ef9f38",
+            measurementId: "G-XKE5MX83H6"
+            };
+        // ===================================================================================
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- GLOBAL VARIABLES ---
-        let allProducts = []; // Local cache of all products from Firestore
-        const categoryData = {
-            "Smartphones": ["Apple", "Samsung", "Google", "OnePlus"],
-            "Laptops": ["Apple", "Dell", "HP", "Lenovo"],
-            "Accessories": ["Cases", "Chargers", "Headphones"],
-            "Wearables": ["Smartwatches", "Fitness Trackers"],
-            "Tablets": ["Apple", "Samsung", "Amazon"]
+        // --- GLOBAL STATE ---
+        let allData = {
+            categories: [],
+            subcategories: [],
+            products: []
         };
-
+        let categoryMap = {};
 
         // --- DOM Elements ---
-        const tableBody = document.getElementById('dataTableBody');
-        const filterInput = document.getElementById('filterInput');
-        const categoryFilter = document.getElementById('categoryFilter');
-        const subCategoryFilter = document.getElementById('subCategoryFilter');
-        const modal = document.getElementById('addDataModal');
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.querySelector('.close-btn');
-        const addDataForm = document.getElementById('addDataForm');
-        const productCategory = document.getElementById('productCategory');
-        const productSubCategory = document.getElementById('productSubCategory');
         const preloader = document.getElementById('preloader');
         const frontPage = document.getElementById('frontPage');
         const enterDashboardBtn = document.getElementById('enterDashboardBtn');
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
+        const mainHeader = document.getElementById('mainHeader');
+        
+        // --- VIEW SWITCHING ---
+        const navLinks = document.querySelectorAll('.sidebar a');
+        const views = document.querySelectorAll('.management-view');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const viewId = link.dataset.view;
+                
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
 
+                views.forEach(view => {
+                    view.style.display = 'none';
+                    if (view.id === viewId) {
+                        view.style.display = 'flex';
+                    }
+                });
+                mainHeader.textContent = `${link.textContent} Management`;
+            });
+        });
 
-        // --- CORE FUNCTIONS ---
-        const renderTable = (dataToRender) => {
+        // --- MODAL HANDLING ---
+        const modals = document.querySelectorAll('.modal');
+        document.querySelectorAll('.open-modal-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const modalId = button.dataset.modal;
+                document.getElementById(modalId).style.display = 'flex';
+            });
+        });
+        document.querySelectorAll('.close-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.modal').style.display = 'none';
+            });
+        });
+        window.addEventListener('click', (event) => {
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+        
+        // --- DATA RENDERING FUNCTIONS ---
+        const renderCategories = (data) => {
+            const tableBody = document.querySelector('#categoryView .data-table-body');
             tableBody.innerHTML = '';
-
-            if (dataToRender.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No matching products found.</td></tr>`;
+            if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No categories found.</td></tr>`;
                 return;
             }
-
-            dataToRender.forEach(item => {
+            data.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${item.category}</td>
-                    <td>${item.subCategory}</td>
-                    <td>${item.name}</td>
-                    <td>${item.productId}</td>
-                    <td><button class="btn-delete" data-id="${item.id}">Delete</button></td>
+                    <td>${item.catId}</td>
+                    <td>${item.catNameEng}</td>
+                    <td>${item.catNameTam}</td>
+                    <td><button class="btn-delete" data-id="${item.id}" data-collection="categories">Delete</button></td>
                 `;
                 tableBody.appendChild(row);
             });
         };
-
-        const populateFilters = () => {
-            const selectedCategory = categoryFilter.value;
-            const selectedSubCategory = subCategoryFilter.value;
-            
-            // Populate main category filter
-            const categories = [...new Set(allProducts.map(p => p.category))];
-            categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
-            categories.sort().forEach(cat => {
-                categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+        const renderSubcategories = (data) => {
+            const tableBody = document.querySelector('#subcategoryView .data-table-body');
+            tableBody.innerHTML = '';
+             if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No subcategories found.</td></tr>`;
+                return;
+            }
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const parentCategoryName = categoryMap[item.parentCategoryId] || 'N/A';
+                row.innerHTML = `
+                    <td>${parentCategoryName}</td>
+                    <td>${item.subcatId}</td>
+                    <td>${item.subcatNameEng}</td>
+                    <td>${item.subcatNameTam}</td>
+                    <td><button class="btn-delete" data-id="${item.id}" data-collection="subcategories">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
             });
-            categoryFilter.value = selectedCategory || 'all';
-            
-            // Populate sub-category filter based on selected category
-            subCategoryFilter.innerHTML = `<option value="all">All Sub-Categories</option>`;
-            if (selectedCategory && selectedCategory !== 'all') {
-                const subCategories = [...new Set(allProducts.filter(p => p.category === selectedCategory).map(p => p.subCategory))];
-                subCategories.sort().forEach(subCat => {
-                    subCategoryFilter.innerHTML += `<option value="${subCat}">${subCat}</option>`;
-                });
-            }
-            subCategoryFilter.value = selectedSubCategory || 'all';
         };
-
-
-        // THIS IS THE MAIN FUNCTION FOR FILTERING AND SEARCHING
-        const filterAndRender = () => {
-            const searchTerm = filterInput.value.toLowerCase();
-            const selectedCategory = categoryFilter.value;
-            const selectedSubCategory = subCategoryFilter.value;
-
-            let filteredData = allProducts;
-
-            // Filter by category
-            if (selectedCategory !== 'all') {
-                filteredData = filteredData.filter(item => item.category === selectedCategory);
+        const renderProducts = (data) => {
+            const tableBody = document.querySelector('#productView .data-table-body');
+            tableBody.innerHTML = '';
+             if (data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No products found.</td></tr>`;
+                return;
             }
-
-            // Filter by sub-category
-            if (selectedSubCategory !== 'all') {
-                filteredData = filteredData.filter(item => item.subCategory === selectedSubCategory);
-            }
-
-            // Filter by search term
-            if (searchTerm) {
-                filteredData = filteredData.filter(item =>
-                    item.name.toLowerCase().includes(searchTerm) ||
-                    item.productId.toLowerCase().includes(searchTerm)
-                );
-            }
-
-            renderTable(filteredData);
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const categoryName = categoryMap[item.prodCategoryId] || 'N/A';
+                const subCategoryName = item.prodSubCategoryName || 'N/A';
+                row.innerHTML = `
+                    <td>${categoryName}</td>
+                    <td>${subCategoryName}</td>
+                    <td>${item.prodId}</td>
+                    <td>${item.prodNameEng}</td>
+                    <td>${item.prodNameTam}</td>
+                    <td>₹${item.prodRate}</td>
+                    <td>${item.isTopProduct ? 'Yes' : 'No'}</td>
+                    <td><button class="btn-delete" data-id="${item.id}" data-collection="products">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
         };
         
-        // --- REAL-TIME FIREBASE LISTENER ---
-        const productsCollection = collection(db, 'products');
-        const q = query(productsCollection, orderBy('category'));
-
-        onSnapshot(q, (snapshot) => {
-            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            populateFilters();
-            filterAndRender();
-        }, (error) => {
-            console.error("Error fetching products:", error);
-            preloader.style.display = 'none'; // Hide preloader even if there's an error
-        });
-
-        // --- EVENT HANDLERS ---
-        filterInput.addEventListener('keyup', filterAndRender);
-        categoryFilter.addEventListener('change', () => {
-            subCategoryFilter.value = 'all';
-            populateFilters();
-            filterAndRender();
-        });
-        subCategoryFilter.addEventListener('change', filterAndRender);
-
-        productCategory.addEventListener('change', () => {
-            const selectedCategory = productCategory.value;
-            productSubCategory.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
-            if (categoryData[selectedCategory]) {
-                categoryData[selectedCategory].forEach(subCat => {
-                    productSubCategory.innerHTML += `<option value="${subCat}">${subCat}</option>`;
+        // --- DATA FETCHING (REAL-TIME LISTENERS) ---
+        onSnapshot(query(collection(db, 'categories'), orderBy('catNameEng')), (snapshot) => {
+            allData.categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            categoryMap = allData.categories.reduce((map, cat) => {
+                map[cat.id] = cat.catNameEng;
+                return map;
+            }, {});
+            document.getElementById('categoryCount').textContent = snapshot.size;
+            renderCategories(allData.categories);
+            populateCategoryDropdowns();
+        }, (error) => console.error("Error fetching categories:", error));
+        onSnapshot(query(collection(db, 'subcategories'), orderBy('subcatNameEng')), (snapshot) => {
+            allData.subcategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            document.getElementById('subcategoryCount').textContent = snapshot.size;
+            renderSubcategories(allData.subcategories);
+        }, (error) => console.error("Error fetching subcategories:", error));
+        onSnapshot(query(collection(db, 'products'), orderBy('prodNameEng')), (snapshot) => {
+            allData.products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            document.getElementById('productCount').textContent = snapshot.size;
+            renderProducts(allData.products);
+        }, (error) => console.error("Error fetching products:", error));
+        
+        // --- DYNAMIC DROPDOWNS ---
+        const populateCategoryDropdowns = () => {
+            const dropdowns = [document.getElementById('parentCategoryId'), document.getElementById('prodCategory')];
+            dropdowns.forEach(dropdown => {
+                const currentValue = dropdown.value;
+                dropdown.innerHTML = '<option value="" disabled selected>Select a category</option>';
+                allData.categories.forEach(cat => {
+                    dropdown.innerHTML += `<option value="${cat.id}">${cat.catNameEng}</option>`;
                 });
-            }
-        });
-
-        addDataForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const newProduct = {
-                name: document.getElementById('productName').value,
-                productId: document.getElementById('productId').value,
-                category: document.getElementById('productCategory').value,
-                subCategory: document.getElementById('productSubCategory').value,
+                dropdown.value = currentValue;
+            });
+        };
+        document.getElementById('prodCategory').addEventListener('change', async (e) => {
+            const categoryId = e.target.value;
+            const subcatDropdown = document.getElementById('prodSubCategory');
+            subcatDropdown.innerHTML = '<option value="" disabled selected>Loading...</option>';
+            if (!categoryId) {
+                subcatDropdown.innerHTML = '<option value="" disabled selected>Select a category first</option>';
+                return;
             };
-
-            try {
-                await addDoc(productsCollection, newProduct);
-                addDataForm.reset();
-                modal.style.display = 'none';
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                alert("Could not add product. Check console for errors.");
-            }
+            const subcatQuery = query(collection(db, 'subcategories'), where('parentCategoryId', '==', categoryId));
+            const querySnapshot = await getDocs(subcatQuery);
+            subcatDropdown.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
+            querySnapshot.forEach((doc) => {
+                subcatDropdown.innerHTML += `<option value="${doc.id}" data-name="${doc.data().subcatNameEng}">${doc.data().subcatNameEng}</option>`;
+            });
         });
 
-        tableBody.addEventListener('click', async (e) => {
+        // --- NON-BLOCKING TOAST NOTIFICATION FUNCTION ---
+        const showToast = (message, type = 'error') => {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        };
+
+        // --- REUSABLE DUPLICATE CHECKER FUNCTION ---
+        const checkDuplicate = (element, dataArray, property, fieldName) => {
+            const value = element.value.trim().toLowerCase();
+            if (!value) return false;
+            const isDuplicate = dataArray.some(item => 
+                item[property] && item[property].toLowerCase() === value
+            );
+            if (isDuplicate) {
+                showToast(`Error: ${fieldName} "${element.value.trim()}" already exists.`);
+                element.focus();
+                element.select();
+                return true;
+            }
+            return false;
+        };
+
+        // --- ATTACH 'blur' EVENT LISTENERS FOR INSTANT VALIDATION ---
+        document.getElementById('catId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.categories, 'catId', 'Category ID'));
+        document.getElementById('catNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.categories, 'catNameEng', 'Category Name'));
+        document.getElementById('subcatId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.subcategories, 'subcatId', 'Subcategory ID'));
+        document.getElementById('subcatNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.subcategories, 'subcatNameEng', 'Subcategory Name'));
+        document.getElementById('prodId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.products, 'prodId', 'Product ID'));
+        document.getElementById('prodNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.products, 'prodNameEng', 'Product Name'));
+
+        // --- FORM SUBMISSION ---
+        document.querySelectorAll('.modal-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                const collectionName = form.dataset.collection;
+                
+                if (collectionName === 'categories') {
+                    if (checkDuplicate(document.getElementById('catId'), allData.categories, 'catId', 'Category ID')) return;
+                    if (checkDuplicate(document.getElementById('catNameEng'), allData.categories, 'catNameEng', 'Category Name')) return;
+                } else if (collectionName === 'subcategories') {
+                    if (checkDuplicate(document.getElementById('subcatId'), allData.subcategories, 'subcatId', 'Subcategory ID')) return;
+                    if (checkDuplicate(document.getElementById('subcatNameEng'), allData.subcategories, 'subcatNameEng', 'Subcategory Name')) return;
+                } else if (collectionName === 'products') {
+                    if (checkDuplicate(document.getElementById('prodId'), allData.products, 'prodId', 'Product ID')) return;
+                    if (checkDuplicate(document.getElementById('prodNameEng'), allData.products, 'prodNameEng', 'Product Name')) return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Saving...';
+
+                const formData = new FormData(form);
+                let data = Object.fromEntries(formData.entries());
+
+                if(collectionName === 'products'){
+                    const selectedSubCat = document.getElementById('prodSubCategory').options[document.getElementById('prodSubCategory').selectedIndex];
+                    data.isTopProduct = document.getElementById('isTopProduct').checked;
+                    data.prodSubCategoryName = selectedSubCat ? selectedSubCat.dataset.name : 'N/A';
+                }
+
+                try {
+                    await addDoc(collection(db, collectionName), data);
+                    form.reset(); 
+                    form.closest('.modal').style.display = 'none';
+                } catch (error) {
+                    console.error("Error adding document:", error);
+                    showToast(`Failed to save! Please check your Firebase settings.`);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            });
+        });
+        
+        // --- DELETE FUNCTIONALITY ---
+        document.querySelector('.main-content').addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-delete')) {
                 const docId = e.target.dataset.id;
-                if (confirm('Are you sure you want to delete this product?')) {
+                const collectionName = e.target.dataset.collection;
+                if (confirm(`Are you sure you want to delete this ${collectionName.slice(0, -1)}?`)) {
                     try {
-                        await deleteDoc(doc(db, 'products', docId));
+                        await deleteDoc(doc(db, collectionName, docId));
                     } catch (error) {
-                        console.error("Error removing document: ", error);
-                        alert("Could not delete product. Check console for errors.");
+                        console.error("Error removing document:", error);
                     }
                 }
             }
         });
 
-        // --- MODAL CONTROLS ---
-        openModalBtn.onclick = () => {
-            productCategory.innerHTML = '<option value="" disabled selected>Select a category</option>';
-            for (const category in categoryData) {
-                productCategory.innerHTML += `<option value="${category}">${category}</option>`;
-            }
-            productSubCategory.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
-            modal.style.display = 'flex';
-        }
-        closeModalBtn.onclick = () => { modal.style.display = 'none'; }
-        window.onclick = (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-        
-        // --- Page Load and Front Page Logic ---
-        window.addEventListener('load', () => {
-            // A short delay can make the preloader feel more intentional
-            setTimeout(() => {
-                preloader.style.display = 'none';
-            }, 500);
-        });
+        // --- SEARCH/FILTER ---
+        document.querySelectorAll('.filter-input').forEach(input => {
+            input.addEventListener('keyup', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const view = e.target.closest('.management-view');
+                const viewId = view.id;
 
+                if (viewId === 'categoryView') {
+                    const filtered = allData.categories.filter(c => c.catNameEng.toLowerCase().includes(searchTerm) || c.catId.toLowerCase().includes(searchTerm));
+                    renderCategories(filtered);
+                } else if (viewId === 'subcategoryView') {
+                    const filtered = allData.subcategories.filter(s => s.subcatNameEng.toLowerCase().includes(searchTerm) || s.subcatId.toLowerCase().includes(searchTerm));
+                    renderSubcategories(filtered);
+                } else if (viewId === 'productView') {
+                    const filtered = allData.products.filter(p => p.prodNameEng.toLowerCase().includes(searchTerm) || p.prodId.toLowerCase().includes(searchTerm));
+                    renderProducts(filtered);
+                }
+            });
+        });
+        
+        // --- Page Load and UI ---
+        window.addEventListener('load', () => setTimeout(() => { preloader.style.display = 'none'; }, 500));
         enterDashboardBtn.addEventListener('click', () => {
             frontPage.style.opacity = '0';
-            setTimeout(() => {
-                frontPage.style.display = 'none';
-            }, 500); // Match timeout with CSS transition duration
+            setTimeout(() => { frontPage.style.display = 'none'; }, 800);
         });
-        
-        // --- Responsive Sidebar Toggle ---
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('show');
-        });
+        menuBtn.addEventListener('click', () => sidebar.classList.toggle('show'));
+
+    </script>
+    
+    <!-- Self-contained Three.js animation script -->
+    <script>
+       if (typeof THREE !== 'undefined') {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 50;
+            const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#three-bg'), alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 7000;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 200; }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({ size: 0.075, color: 0xffab00, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.8 });
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            let mouseX = 0, mouseY = 0;
+            document.addEventListener('mousemove', (event) => { mouseX = event.clientX; mouseY = event.clientY; });
+            const clock = new THREE.Clock();
+            const animate = () => {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+                particlesMesh.rotation.y = .05 * elapsedTime + (mouseX / window.innerWidth - 0.5) * 0.3;
+                particlesMesh.rotation.x = .05 * elapsedTime + (mouseY / window.innerHeight - 0.5) * 0.3;
+                renderer.render(scene, camera);
+            };
+            animate();
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+            });
+        }
     </script>
 </body>
 </html>
