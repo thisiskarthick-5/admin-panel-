@@ -23,6 +23,7 @@
             --text-secondary-light: #bdc1c6;
             --border-color-dark: #5f6368;
             --danger-color: #e57373; 
+            --info-color: #64b5f6; /* Color for Edit button */
             --font-family-main: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
@@ -101,6 +102,11 @@
         tbody tr { transition: background-color 0.2s; }
         tbody tr:hover { background-color: #3c4043; }
         tbody tr:last-child td { border-bottom: none; }
+
+        .action-buttons { display: flex; gap: 0.5rem; } 
+        .btn-edit { background-color: transparent; color: var(--info-color); border: 1px solid transparent; padding: 0.4rem 0.8rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.2s, border-color 0.2s; }
+        .btn-edit:hover { background-color: rgba(100, 181, 246, 0.1); border-color: var(--info-color); }
+
         .btn-delete { background-color: transparent; color: var(--danger-color); border: 1px solid transparent; padding: 0.4rem 0.8rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.2s, border-color 0.2s; }
         .btn-delete:hover { background-color: rgba(229, 115, 115, 0.1); border-color: var(--danger-color); }
         
@@ -142,6 +148,7 @@
         #toastContainer { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; max-width: 500px; }
         .toast { padding: 12px 20px; border-radius: 8px; font-weight: 500; color: var(--text-primary-light); box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slide-in 0.3s ease-out, fade-out 0.5s ease-in 3.5s forwards; }
         .toast.error { background-color: var(--danger-color); }
+        .toast.success { background-color: #4caf50; } 
         @keyframes slide-in { from { transform: translateY(-100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fade-out { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
 
@@ -234,7 +241,8 @@
                 <input type="text" class="filter-input" placeholder="Search by name or ID...">
                  <div class="action-bar-right-group">
                     <div class="count-badge">Subcategories: <span id="subcategoryCount">0</span></div>
-                    <button class="btn-primary open-modal-btn" data-modal="subcategoryModal">ADD SUBCATEGORY</button>
+                    <!-- MODIFIED: Added ID for JS targeting -->
+                    <button id="addSubcategoryBtn" class="btn-primary open-modal-btn" data-modal="subcategoryModal" disabled>ADD SUBCATEGORY</button>
                 </div>
             </div>
             <div class="table-container">
@@ -261,7 +269,8 @@
                 <input type="text" class="filter-input" placeholder="Search by name or ID...">
                 <div class="action-bar-right-group">
                     <div class="count-badge">Products: <span id="productCount">0</span></div>
-                    <button class="btn-primary open-modal-btn" data-modal="productModal">ADD PRODUCT</button>
+                    <!-- MODIFIED: Added ID for JS targeting -->
+                    <button id="addProductBtn" class="btn-primary open-modal-btn" data-modal="productModal" disabled>ADD PRODUCT</button>
                 </div>
             </div>
             <div class="table-container">
@@ -290,10 +299,13 @@
     <div id="categoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Category</h2>
+                <h2 class="modal-title">Add New Category</h2>
                 <span class="close-btn">&times;</span>
             </div>
             <form class="modal-form" data-collection="categories">
+                <input type="hidden" name="editId">
+                <input type="hidden" name="originalCatId">
+                <input type="hidden" name="originalCatNameEng">
                 <div class="form-group">
                     <label for="catId">Category ID</label>
                     <input type="text" id="catId" name="catId" required>
@@ -311,7 +323,7 @@
                     <input type="url" id="catImage" name="catImage" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn-primary">Add Category</button>
+                    <button type="submit" class="btn-primary modal-submit-btn">Add Category</button>
                 </div>
             </form>
         </div>
@@ -319,10 +331,14 @@
     <div id="subcategoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Subcategory</h2>
+                <h2 class="modal-title">Add New Subcategory</h2>
                 <span class="close-btn">&times;</span>
             </div>
             <form class="modal-form" data-collection="subcategories">
+                <input type="hidden" name="editId">
+                <input type="hidden" name="originalSubcatId">
+                <input type="hidden" name="originalSubcatNameEng">
+                <input type="hidden" name="parentCatId"> <!-- To store the original parent ID for update path -->
                 <div class="form-group">
                     <label for="parentCategoryId">Parent Category</label>
                     <select id="parentCategoryId" name="parentCategoryId" required>
@@ -342,7 +358,7 @@
                     <input type="text" id="subcatNameTam" name="subcatNameTam" required>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn-primary">Add Subcategory</button>
+                    <button type="submit" class="btn-primary modal-submit-btn">Add Subcategory</button>
                 </div>
             </form>
         </div>
@@ -350,10 +366,13 @@
     <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Add New Product</h2>
+                <h2 class="modal-title">Add New Product</h2>
                 <span class="close-btn">&times;</span>
             </div>
             <form class="modal-form" data-collection="products">
+                <input type="hidden" name="editId">
+                <input type="hidden" name="originalProdId">
+                <input type="hidden" name="originalProdNameEng">
                 <div class="form-group">
                     <label for="prodCategory">Category</label>
                     <select id="prodCategory" name="prodCategoryId" required>
@@ -362,7 +381,8 @@
                 </div>
                  <div class="form-group">
                     <label for="prodSubCategory">Sub-Category</label>
-                    <select id="prodSubCategory" name="prodSubCategoryId" required>
+                    <!-- MODIFIED: Removed the 'required' attribute to make subcategory optional -->
+                    <select id="prodSubCategory" name="prodSubCategoryId">
                         <option value="" disabled selected>Select a sub-category</option>
                     </select>
                 </div>
@@ -387,43 +407,52 @@
                     <input type="checkbox" id="isTopProduct" name="isTopProduct">
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn-primary">Save Product</button>
+                    <button type="submit" class="btn-primary modal-submit-btn">Save Product</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JavaScript logic using ES Modules for Firebase -->
-    <script type="module">
+          <script type="module">
+        // Import only Realtime Database modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { 
+            getDatabase, 
+            ref, 
+            push,      // Used to create new unique keys (like addDoc)
+            set,       // Used to write data to a specific reference
+            update,    // Used for editing/updating data
+            remove,    // Used to delete data
+            onValue,   // Used for real-time data listening
+            query,     // Used for querying (e.g., orderBy, limitToLast)
+            orderByChild, // Used to order data by a specific child key
+            equalTo    // Used for filtering data
+        } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // ===================================================================================
-        // IMPORTANT: REPLACE THIS WITH YOUR ACTUAL FIREBASE CONFIG FROM THE FIREBASE CONSOLE
-        // ===================================================================================
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-            const firebaseConfig = {
-            apiKey: "AIzaSyD-4hqIpRkEDA89ob2p4N89-C9b6Wl7-vk",
-            authDomain: "product-handling.firebaseapp.com",
-            projectId: "product-handling",
-            storageBucket: "product-handling.firebasestorage.app",
-            messagingSenderId: "229189990697",
-            appId: "1:229189990697:web:79227c24a9268d98ef9f38",
-            measurementId: "G-XKE5MX83H6"
-            };
-        // ===================================================================================
+           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+                const firebaseConfig = {
+                apiKey: "AIzaSyD-4hqIpRkEDA89ob2p4N89-C9b6Wl7-vk",
+                authDomain: "product-handling.firebaseapp.com",
+                databaseURL: "https://product-handling-default-rtdb.firebaseio.com/", 
+                projectId: "product-handling",
+                storageBucket: "product-handling.firebasestorage.app",
+                messagingSenderId: "229189990697",
+                appId: "1:229189990697:web:79227c24a9268d98ef9f38",
+                measurementId: "G-XKE5MX83H6"
+                };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app); 
+
 
         // --- GLOBAL STATE ---
         let allData = {
             categories: [],
-            subcategories: [],
+            subcategories: [], // This will still hold flattened subcategories for easy access/rendering
             products: []
         };
-        let categoryMap = {};
+        let categoryMap = {}; // Maps category ID to name
+        let subcategoryMap = {}; // Maps subcategory ID to name
 
         // --- DOM Elements ---
         const preloader = document.getElementById('preloader');
@@ -453,23 +482,57 @@
             });
         });
 
-        // --- MODAL HANDLING ---
+        // --- MODAL HANDLING (Updated to include reset logic) ---
         const modals = document.querySelectorAll('.modal');
+        const resetModal = (modal) => {
+            const form = modal.querySelector('.modal-form');
+            form.reset();
+            form.querySelector('input[name="editId"]').value = ''; // Clear edit ID
+            // Clear original values for validation
+            if(form.originalCatId) form.originalCatId.value = '';
+            if(form.originalCatNameEng) form.originalCatNameEng.value = '';
+            if(form.originalSubcatId) form.originalSubcatId.value = '';
+            if(form.originalSubcatNameEng) form.originalSubcatNameEng.value = '';
+            if(form.originalProdId) form.originalProdId.value = '';
+            if(form.originalProdNameEng) form.originalProdNameEng.value = '';
+            if(form.parentCatId) form.parentCatId.value = ''; // Clear for subcategory original parent ID
+
+            // Reset titles and buttons
+            modal.querySelector('.modal-title').textContent = modal.id.includes('category') 
+                ? 'Add New Category' : modal.id.includes('subcategory')
+                ? 'Add New Subcategory' : 'Add New Product';
+            modal.querySelector('.modal-submit-btn').textContent = modal.id.includes('category')
+                ? 'Add Category' : modal.id.includes('subcategory')
+                ? 'Add Subcategory' : 'Add Product'; // Changed to 'Add Product'
+            
+            // Re-populate dropdowns if applicable to reset their state
+            if (modal.id === 'subcategoryModal') populateCategoryDropdowns();
+            if (modal.id === 'productModal') {
+                populateCategoryDropdowns();
+                document.getElementById('prodSubCategory').innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
+            }
+        };
+
         document.querySelectorAll('.open-modal-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const modalId = button.dataset.modal;
-                document.getElementById(modalId).style.display = 'flex';
+                const modal = document.getElementById(modalId);
+                resetModal(modal); // Reset modal before showing
+                modal.style.display = 'flex';
             });
         });
         document.querySelectorAll('.close-btn').forEach(button => {
             button.addEventListener('click', () => {
-                button.closest('.modal').style.display = 'none';
+                const modal = button.closest('.modal');
+                modal.style.display = 'none';
+                resetModal(modal); // Reset on close
             });
         });
         window.addEventListener('click', (event) => {
             modals.forEach(modal => {
                 if (event.target == modal) {
                     modal.style.display = 'none';
+                    resetModal(modal); // Reset on clicking outside
                 }
             });
         });
@@ -488,11 +551,17 @@
                     <td>${item.catId}</td>
                     <td>${item.catNameEng}</td>
                     <td>${item.catNameTam}</td>
-                    <td><button class="btn-delete" data-id="${item.id}" data-collection="categories">Delete</button></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-id="${item.id}" data-collection="categories">Edit</button>
+                            <button class="btn-delete" data-id="${item.id}" data-collection="categories">Delete</button>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
         };
+
         const renderSubcategories = (data) => {
             const tableBody = document.querySelector('#subcategoryView .data-table-body');
             tableBody.innerHTML = '';
@@ -502,17 +571,23 @@
             }
             data.forEach(item => {
                 const row = document.createElement('tr');
-                const parentCategoryName = categoryMap[item.parentCategoryId] || 'N/A';
+                const parentCategoryName = categoryMap[item.parentCategoryId] || 'N/A'; 
                 row.innerHTML = `
                     <td>${parentCategoryName}</td>
                     <td>${item.subcatId}</td>
                     <td>${item.subcatNameEng}</td>
                     <td>${item.subcatNameTam}</td>
-                    <td><button class="btn-delete" data-id="${item.id}" data-collection="subcategories">Delete</button></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-id="${item.id}" data-parent-id="${item.parentCategoryId}" data-collection="subcategories">Edit</button>
+                            <button class="btn-delete" data-id="${item.id}" data-parent-id="${item.parentCategoryId}" data-collection="subcategories">Delete</button>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
         };
+
         const renderProducts = (data) => {
             const tableBody = document.querySelector('#productView .data-table-body');
             tableBody.innerHTML = '';
@@ -523,7 +598,7 @@
             data.forEach(item => {
                 const row = document.createElement('tr');
                 const categoryName = categoryMap[item.prodCategoryId] || 'N/A';
-                const subCategoryName = item.prodSubCategoryName || 'N/A';
+                const subCategoryName = subcategoryMap[item.prodSubCategoryId] || 'N/A'; 
                 row.innerHTML = `
                     <td>${categoryName}</td>
                     <td>${subCategoryName}</td>
@@ -532,31 +607,94 @@
                     <td>${item.prodNameTam}</td>
                     <td>₹${item.prodRate}</td>
                     <td>${item.isTopProduct ? 'Yes' : 'No'}</td>
-                    <td><button class="btn-delete" data-id="${item.id}" data-collection="products">Delete</button></td>
+                     <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" data-id="${item.id}" data-collection="products">Edit</button>
+                            <button class="btn-delete" data-id="${item.id}" data-collection="products">Delete</button>
+                        </div>
+                    </td>
                 `;
                 tableBody.appendChild(row);
             });
         };
+
+        // --- UI STATE MANAGEMENT ---
+        const updateButtonStates = () => {
+            const addSubcategoryBtn = document.getElementById('addSubcategoryBtn');
+            const addProductBtn = document.getElementById('addProductBtn');
+
+            // Condition for adding a subcategory
+            if (allData.categories.length > 0) {
+                addSubcategoryBtn.disabled = false;
+                addSubcategoryBtn.title = 'Add a new subcategory';
+            } else {
+                addSubcategoryBtn.disabled = true;
+                addSubcategoryBtn.title = 'Please create a category first before adding a subcategory.';
+            }
+
+            // MODIFIED: Condition for adding a product now depends on categories existing.
+            if (allData.categories.length > 0) {
+                addProductBtn.disabled = false;
+                addProductBtn.title = 'Add a new product';
+            } else {
+                addProductBtn.disabled = true;
+                addProductBtn.title = 'Please create a category first before adding a product.';
+            }
+        };
         
         // --- DATA FETCHING (REAL-TIME LISTENERS) ---
-        onSnapshot(query(collection(db, 'categories'), orderBy('catNameEng')), (snapshot) => {
-            allData.categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Listen for Categories
+        onValue(query(ref(db, 'categories'), orderByChild('catNameEng')), (snapshot) => {
+            const categories = [];
+            const subcategoriesFlattened = []; 
+            snapshot.forEach(childSnapshot => {
+                const categoryData = childSnapshot.val();
+                const categoryId = childSnapshot.key;
+                
+                categories.push({ id: categoryId, ...categoryData });
+
+                // Also, process nested subcategories
+                if (categoryData.subcategories) {
+                    for (const subcatId in categoryData.subcategories) {
+                        subcategoriesFlattened.push({
+                            id: subcatId,
+                            parentCategoryId: categoryId, 
+                            ...categoryData.subcategories[subcatId]
+                        });
+                    }
+                }
+            });
+            allData.categories = categories;
             categoryMap = allData.categories.reduce((map, cat) => {
                 map[cat.id] = cat.catNameEng;
                 return map;
             }, {});
-            document.getElementById('categoryCount').textContent = snapshot.size;
+            document.getElementById('categoryCount').textContent = categories.length;
             renderCategories(allData.categories);
-            populateCategoryDropdowns();
-        }, (error) => console.error("Error fetching categories:", error));
-        onSnapshot(query(collection(db, 'subcategories'), orderBy('subcatNameEng')), (snapshot) => {
-            allData.subcategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            document.getElementById('subcategoryCount').textContent = snapshot.size;
+            populateCategoryDropdowns(); // Re-populate dropdowns as categories might change
+
+            // Update subcategories based on the nested data
+            allData.subcategories = subcategoriesFlattened;
+            subcategoryMap = allData.subcategories.reduce((map, subcat) => {
+                map[subcat.id] = subcat.subcatNameEng;
+                return map;
+            }, {});
+            document.getElementById('subcategoryCount').textContent = subcategoriesFlattened.length;
             renderSubcategories(allData.subcategories);
-        }, (error) => console.error("Error fetching subcategories:", error));
-        onSnapshot(query(collection(db, 'products'), orderBy('prodNameEng')), (snapshot) => {
-            allData.products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            document.getElementById('productCount').textContent = snapshot.size;
+            
+            // MODIFIED: Call the function to update button states whenever data changes
+            updateButtonStates();
+        }, (error) => console.error("Error fetching categories (with subcategories):", error));
+
+        // Listen for Products (unchanged, still top-level)
+        onValue(query(ref(db, 'products'), orderByChild('prodNameEng')), (snapshot) => {
+            const products = [];
+            snapshot.forEach(childSnapshot => {
+                products.push({ id: childSnapshot.key, ...childSnapshot.val() });
+            });
+            allData.products = products;
+            document.getElementById('productCount').textContent = products.length;
             renderProducts(allData.products);
         }, (error) => console.error("Error fetching products:", error));
         
@@ -564,28 +702,35 @@
         const populateCategoryDropdowns = () => {
             const dropdowns = [document.getElementById('parentCategoryId'), document.getElementById('prodCategory')];
             dropdowns.forEach(dropdown => {
-                const currentValue = dropdown.value;
+                const currentValue = dropdown.value; // Store current value
                 dropdown.innerHTML = '<option value="" disabled selected>Select a category</option>';
                 allData.categories.forEach(cat => {
                     dropdown.innerHTML += `<option value="${cat.id}">${cat.catNameEng}</option>`;
                 });
-                dropdown.value = currentValue;
+                // Restore value if it's still a valid option
+                if (Array.from(dropdown.options).some(option => option.value === currentValue)) {
+                    dropdown.value = currentValue; 
+                }
             });
         };
-        document.getElementById('prodCategory').addEventListener('change', async (e) => {
-            const categoryId = e.target.value;
-            const subcatDropdown = document.getElementById('prodSubCategory');
-            subcatDropdown.innerHTML = '<option value="" disabled selected>Loading...</option>';
-            if (!categoryId) {
-                subcatDropdown.innerHTML = '<option value="" disabled selected>Select a category first</option>';
-                return;
-            };
-            const subcatQuery = query(collection(db, 'subcategories'), where('parentCategoryId', '==', categoryId));
-            const querySnapshot = await getDocs(subcatQuery);
+        
+        const populateSubcategoryDropdown = (categoryId, targetDropdownId, selectedSubcatId = null) => {
+            const subcatDropdown = document.getElementById(targetDropdownId);
             subcatDropdown.innerHTML = '<option value="" disabled selected>Select a sub-category</option>';
-            querySnapshot.forEach((doc) => {
-                subcatDropdown.innerHTML += `<option value="${doc.id}" data-name="${doc.data().subcatNameEng}">${doc.data().subcatNameEng}</option>`;
-            });
+            if (categoryId) {
+                const filteredSubcategories = allData.subcategories.filter(sub => sub.parentCategoryId === categoryId);
+                filteredSubcategories.forEach(subcat => {
+                    subcatDropdown.innerHTML += `<option value="${subcat.id}">${subcat.subcatNameEng}</option>`;
+                });
+            }
+            if(selectedSubcatId) {
+                subcatDropdown.value = selectedSubcatId;
+            }
+        };
+
+        // When a main category is selected for product or subcategory addition
+        document.getElementById('prodCategory').addEventListener('change', (e) => {
+            populateSubcategoryDropdown(e.target.value, 'prodSubCategory');
         });
 
         // --- NON-BLOCKING TOAST NOTIFICATION FUNCTION ---
@@ -601,14 +746,28 @@
         };
 
         // --- REUSABLE DUPLICATE CHECKER FUNCTION ---
-        const checkDuplicate = (element, dataArray, property, fieldName) => {
+        const checkDuplicate = (element, dataArray, property, fieldName, parentId = null, originalValue = null) => {
             const value = element.value.trim().toLowerCase();
             if (!value) return false;
-            const isDuplicate = dataArray.some(item => 
-                item[property] && item[property].toLowerCase() === value
-            );
+            // If the value hasn't changed from its original, it's not a duplicate conflict
+            if (originalValue && value === originalValue.trim().toLowerCase()) {
+                return false; 
+            }
+
+            let isDuplicate;
+            if (parentId && fieldName.includes('Subcategory')) { // Special handling for subcategories under a parent
+                 isDuplicate = dataArray.some(item => 
+                    item.parentCategoryId === parentId && 
+                    item[property] && item[property].toLowerCase() === value
+                );
+            } else {
+                isDuplicate = dataArray.some(item => 
+                    item[property] && item[property].toLowerCase() === value
+                );
+            }
+
             if (isDuplicate) {
-                showToast(`Error: ${fieldName} "${element.value.trim()}" already exists.`);
+                showToast(`Error: ${fieldName} "${element.value.trim()}" already exists.`, 'error');
                 element.focus();
                 element.select();
                 return true;
@@ -617,30 +776,65 @@
         };
 
         // --- ATTACH 'blur' EVENT LISTENERS FOR INSTANT VALIDATION ---
-        document.getElementById('catId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.categories, 'catId', 'Category ID'));
-        document.getElementById('catNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.categories, 'catNameEng', 'Category Name'));
-        document.getElementById('subcatId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.subcategories, 'subcatId', 'Subcategory ID'));
-        document.getElementById('subcatNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.subcategories, 'subcatNameEng', 'Subcategory Name'));
-        document.getElementById('prodId').addEventListener('blur', (e) => checkDuplicate(e.target, allData.products, 'prodId', 'Product ID'));
-        document.getElementById('prodNameEng').addEventListener('blur', (e) => checkDuplicate(e.target, allData.products, 'prodNameEng', 'Product Name'));
+        document.getElementById('catId').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const originalValue = form.originalCatId ? form.originalCatId.value : null;
+            checkDuplicate(e.target, allData.categories, 'catId', 'Category ID', null, originalValue);
+        });
+        document.getElementById('catNameEng').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const originalValue = form.originalCatNameEng ? form.originalCatNameEng.value : null;
+            checkDuplicate(e.target, allData.categories, 'catNameEng', 'Category Name', null, originalValue);
+        });
+        
+        document.getElementById('subcatId').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const parentId = document.getElementById('parentCategoryId').value;
+            const originalValue = form.originalSubcatId ? form.originalSubcatId.value : null;
+            checkDuplicate(e.target, allData.subcategories, 'subcatId', 'Subcategory ID', parentId, originalValue);
+        });
+        document.getElementById('subcatNameEng').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const parentId = document.getElementById('parentCategoryId').value;
+            const originalValue = form.originalSubcatNameEng ? form.originalSubcatNameEng.value : null;
+            checkDuplicate(e.target, allData.subcategories, 'subcatNameEng', 'Subcategory Name', parentId, originalValue);
+        });
+
+        document.getElementById('prodId').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const originalValue = form.originalProdId ? form.originalProdId.value : null;
+            checkDuplicate(e.target, allData.products, 'prodId', 'Product ID', null, originalValue);
+        });
+        document.getElementById('prodNameEng').addEventListener('blur', (e) => {
+            const form = e.target.form;
+            const originalValue = form.originalProdNameEng ? form.originalProdNameEng.value : null;
+            checkDuplicate(e.target, allData.products, 'prodNameEng', 'Product Name', null, originalValue);
+        });
 
         // --- FORM SUBMISSION ---
         document.querySelectorAll('.modal-form').forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const submitButton = form.querySelector('button[type="submit"]');
+                const submitButton = form.querySelector('.modal-submit-btn');
                 const originalButtonText = submitButton.textContent;
                 const collectionName = form.dataset.collection;
+                const editId = form.querySelector('input[name="editId"]').value; 
                 
+                // Duplicate checks 
                 if (collectionName === 'categories') {
-                    if (checkDuplicate(document.getElementById('catId'), allData.categories, 'catId', 'Category ID')) return;
-                    if (checkDuplicate(document.getElementById('catNameEng'), allData.categories, 'catNameEng', 'Category Name')) return;
+                    if (checkDuplicate(document.getElementById('catId'), allData.categories, 'catId', 'Category ID', null, form.originalCatId.value)) return;
+                    if (checkDuplicate(document.getElementById('catNameEng'), allData.categories, 'catNameEng', 'Category Name', null, form.originalCatNameEng.value)) return;
                 } else if (collectionName === 'subcategories') {
-                    if (checkDuplicate(document.getElementById('subcatId'), allData.subcategories, 'subcatId', 'Subcategory ID')) return;
-                    if (checkDuplicate(document.getElementById('subcatNameEng'), allData.subcategories, 'subcatNameEng', 'Subcategory Name')) return;
+                    const parentId = document.getElementById('parentCategoryId').value;
+                    if (!parentId) {
+                        showToast('Please select a parent category.', 'error');
+                        return;
+                    }
+                    if (checkDuplicate(document.getElementById('subcatId'), allData.subcategories, 'subcatId', 'Subcategory ID', parentId, form.originalSubcatId.value)) return;
+                    if (checkDuplicate(document.getElementById('subcatNameEng'), allData.subcategories, 'subcatNameEng', 'Subcategory Name', parentId, form.originalSubcatNameEng.value)) return;
                 } else if (collectionName === 'products') {
-                    if (checkDuplicate(document.getElementById('prodId'), allData.products, 'prodId', 'Product ID')) return;
-                    if (checkDuplicate(document.getElementById('prodNameEng'), allData.products, 'prodNameEng', 'Product Name')) return;
+                    if (checkDuplicate(document.getElementById('prodId'), allData.products, 'prodId', 'Product ID', null, form.originalProdId.value)) return;
+                    if (checkDuplicate(document.getElementById('prodNameEng'), allData.products, 'prodNameEng', 'Product Name', null, form.originalProdNameEng.value)) return;
                 }
 
                 submitButton.disabled = true;
@@ -648,38 +842,156 @@
 
                 const formData = new FormData(form);
                 let data = Object.fromEntries(formData.entries());
+                
+                // Cleanup data by removing helper fields
+                delete data.editId;
+                delete data.originalCatId;
+                delete data.originalCatNameEng;
+                delete data.originalSubcatId;
+                delete data.originalSubcatNameEng;
+                delete data.originalProdId;
+                delete data.originalProdNameEng;
 
+                // Handle product specific fields
                 if(collectionName === 'products'){
-                    const selectedSubCat = document.getElementById('prodSubCategory').options[document.getElementById('prodSubCategory').selectedIndex];
                     data.isTopProduct = document.getElementById('isTopProduct').checked;
-                    data.prodSubCategoryName = selectedSubCat ? selectedSubCat.dataset.name : 'N/A';
+                    const selectedSubCategoryId = document.getElementById('prodSubCategory').value;
+                    data.prodSubCategoryName = subcategoryMap[selectedSubCategoryId] || 'N/A';
                 }
 
                 try {
-                    await addDoc(collection(db, collectionName), data);
-                    form.reset(); 
-                    form.closest('.modal').style.display = 'none';
+                    if(editId) { 
+                        let itemRef;
+                        if(collectionName === 'subcategories') {
+                             const originalParentCategoryId = form.parentCatId.value; // Use the stored original parent ID
+                             itemRef = ref(db, `categories/${originalParentCategoryId}/subcategories/${editId}`);
+                             delete data.parentCategoryId; // Ensure parentCategoryId is not written directly to subcategory data
+                        } else {
+                             itemRef = ref(db, `${collectionName}/${editId}`);
+                        }
+                        await update(itemRef, data);
+                        showToast('Item updated successfully!', 'success');
+                    } else { // ADD LOGIC
+                        let pathRef;
+                        if (collectionName === 'subcategories') {
+                            const parentCategoryId = data.parentCategoryId;
+                            pathRef = ref(db, `categories/${parentCategoryId}/subcategories`);
+                            delete data.parentCategoryId; 
+                        } else {
+                            pathRef = ref(db, collectionName);
+                        }
+                        await set(push(pathRef), data);
+                         showToast('Item added successfully!', 'success');
+                    }
+                    
+                    const modal = form.closest('.modal');
+                    modal.style.display = 'none';
+                    resetModal(modal);
                 } catch (error) {
-                    console.error("Error adding document:", error);
-                    showToast(`Failed to save! Please check your Firebase settings.`);
+                    console.error("Error saving data:", error);
+                    showToast(`Failed to save! Please check your connection and Firebase rules.`, 'error');
                 } finally {
                     submitButton.disabled = false;
-                    submitButton.textContent = originalButtonText;
+                    // Button text is reset by resetModal
                 }
             });
         });
         
-        // --- DELETE FUNCTIONALITY ---
+        // --- DELETE & EDIT FUNCTIONALITY ---
         document.querySelector('.main-content').addEventListener('click', async (e) => {
+            // --- DELETE LOGIC ---
             if (e.target.classList.contains('btn-delete')) {
-                const docId = e.target.dataset.id;
-                const collectionName = e.target.dataset.collection;
+                const button = e.target;
+                button.disabled = true;
+                const itemId = button.dataset.id; 
+                const collectionName = button.dataset.collection;
+                
                 if (confirm(`Are you sure you want to delete this ${collectionName.slice(0, -1)}?`)) {
                     try {
-                        await deleteDoc(doc(db, collectionName, docId));
+                        let itemRef;
+                        if (collectionName === 'subcategories') {
+                            const parentId = button.dataset.parentId; 
+                            itemRef = ref(db, `categories/${parentId}/subcategories/${itemId}`);
+                        } else {
+                            itemRef = ref(db, `${collectionName}/${itemId}`);
+                        }
+                        await remove(itemRef); 
+                        showToast('Item deleted successfully!', 'success');
                     } catch (error) {
-                        console.error("Error removing document:", error);
+                        console.error("Error removing data:", error);
+                        showToast('Error deleting item.', 'error');
                     }
+                }
+                 button.disabled = false;
+            }
+
+            // --- EDIT LOGIC ---
+            if (e.target.classList.contains('btn-edit')) {
+                const itemId = e.target.dataset.id;
+                const collectionName = e.target.dataset.collection;
+
+                if (collectionName === 'categories') {
+                    const item = allData.categories.find(c => c.id === itemId);
+                    if (!item) { showToast('Category not found for editing.', 'error'); return; }
+                    const modal = document.getElementById('categoryModal');
+                    const form = modal.querySelector('form');
+                    
+                    form.querySelector('.modal-title').textContent = 'Edit Category';
+                    form.querySelector('.modal-submit-btn').textContent = 'Update Category';
+                    form.editId.value = item.id;
+                    form.originalCatId.value = item.catId; 
+                    form.originalCatNameEng.value = item.catNameEng;
+                    
+                    form.catId.value = item.catId;
+                    form.catNameEng.value = item.catNameEng;
+                    form.catNameTam.value = item.catNameTam;
+                    form.catImage.value = item.catImage;
+                    modal.style.display = 'flex';
+
+                } else if (collectionName === 'subcategories') {
+                    const item = allData.subcategories.find(s => s.id === itemId);
+                    if (!item) { showToast('Subcategory not found for editing.', 'error'); return; }
+                    const modal = document.getElementById('subcategoryModal');
+                    const form = modal.querySelector('form');
+
+                    form.querySelector('.modal-title').textContent = 'Edit Subcategory';
+                    form.querySelector('.modal-submit-btn').textContent = 'Update Subcategory';
+                    form.editId.value = item.id;
+                    form.parentCatId.value = item.parentCategoryId; // Store original parent for update path
+                    form.originalSubcatId.value = item.subcatId;
+                    form.originalSubcatNameEng.value = item.subcatNameEng;
+                    
+                    // Populate category dropdown first to ensure options are available
+                    populateCategoryDropdowns(); 
+                    form.parentCategoryId.value = item.parentCategoryId;
+                    form.subcatId.value = item.subcatId;
+                    form.subcatNameEng.value = item.subcatNameEng;
+                    form.subcatNameTam.value = item.subcatNameTam;
+                    modal.style.display = 'flex';
+                
+                } else if (collectionName === 'products') {
+                    const item = allData.products.find(p => p.id === itemId);
+                    if (!item) { showToast('Product not found for editing.', 'error'); return; }
+                    const modal = document.getElementById('productModal');
+                    const form = modal.querySelector('form');
+
+                    form.querySelector('.modal-title').textContent = 'Edit Product';
+                    form.querySelector('.modal-submit-btn').textContent = 'Update Product';
+                    form.editId.value = item.id;
+                    form.originalProdId.value = item.prodId;
+                    form.originalProdNameEng.value = item.prodNameEng;
+
+                    // Populate category dropdown, then subcategory based on selected category
+                    populateCategoryDropdowns(); 
+                    form.prodCategory.value = item.prodCategoryId;
+                    populateSubcategoryDropdown(item.prodCategoryId, 'prodSubCategory', item.prodSubCategoryId);
+                    
+                    form.prodId.value = item.prodId;
+                    form.prodNameEng.value = item.prodNameEng;
+                    form.prodNameTam.value = item.prodNameTam;
+                    form.prodRate.value = item.prodRate;
+                    form.isTopProduct.checked = item.isTopProduct || false;
+                    modal.style.display = 'flex';
                 }
             }
         });
@@ -692,13 +1004,25 @@
                 const viewId = view.id;
 
                 if (viewId === 'categoryView') {
-                    const filtered = allData.categories.filter(c => c.catNameEng.toLowerCase().includes(searchTerm) || c.catId.toLowerCase().includes(searchTerm));
+                    const filtered = allData.categories.filter(c => 
+                        (c.catNameEng && c.catNameEng.toLowerCase().includes(searchTerm)) || 
+                        (c.catId && c.catId.toLowerCase().includes(searchTerm))
+                    );
                     renderCategories(filtered);
                 } else if (viewId === 'subcategoryView') {
-                    const filtered = allData.subcategories.filter(s => s.subcatNameEng.toLowerCase().includes(searchTerm) || s.subcatId.toLowerCase().includes(searchTerm));
+                    const filtered = allData.subcategories.filter(s => 
+                        (s.subcatNameEng && s.subcatNameEng.toLowerCase().includes(searchTerm)) || 
+                        (s.subcatId && s.subcatId.toLowerCase().includes(searchTerm)) || 
+                        (categoryMap[s.parentCategoryId] && categoryMap[s.parentCategoryId].toLowerCase().includes(searchTerm))
+                    );
                     renderSubcategories(filtered);
                 } else if (viewId === 'productView') {
-                    const filtered = allData.products.filter(p => p.prodNameEng.toLowerCase().includes(searchTerm) || p.prodId.toLowerCase().includes(searchTerm));
+                    const filtered = allData.products.filter(p => 
+                        (p.prodNameEng && p.prodNameEng.toLowerCase().includes(searchTerm)) || 
+                        (p.prodId && p.prodId.toLowerCase().includes(searchTerm)) ||
+                        (categoryMap[p.prodCategoryId] && categoryMap[p.prodCategoryId].toLowerCase().includes(searchTerm)) ||
+                        (subcategoryMap[p.prodSubCategoryId] && subcategoryMap[p.prodSubCategoryId].toLowerCase().includes(searchTerm))
+                    );
                     renderProducts(filtered);
                 }
             });
@@ -712,42 +1036,6 @@
         });
         menuBtn.addEventListener('click', () => sidebar.classList.toggle('show'));
 
-    </script>
-    
-    <!-- Self-contained Three.js animation script -->
-    <script>
-       if (typeof THREE !== 'undefined') {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 50;
-            const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#three-bg'), alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            const particlesGeometry = new THREE.BufferGeometry();
-            const particlesCount = 7000;
-            const posArray = new Float32Array(particlesCount * 3);
-            for(let i = 0; i < particlesCount * 3; i++) { posArray[i] = (Math.random() - 0.5) * 200; }
-            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const particlesMaterial = new THREE.PointsMaterial({ size: 0.075, color: 0xffab00, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.8 });
-            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-            scene.add(particlesMesh);
-            let mouseX = 0, mouseY = 0;
-            document.addEventListener('mousemove', (event) => { mouseX = event.clientX; mouseY = event.clientY; });
-            const clock = new THREE.Clock();
-            const animate = () => {
-                requestAnimationFrame(animate);
-                const elapsedTime = clock.getElapsedTime();
-                particlesMesh.rotation.y = .05 * elapsedTime + (mouseX / window.innerWidth - 0.5) * 0.3;
-                particlesMesh.rotation.x = .05 * elapsedTime + (mouseY / window.innerHeight - 0.5) * 0.3;
-                renderer.render(scene, camera);
-            };
-            animate();
-            window.addEventListener('resize', () => {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-            });
-        }
     </script>
 </body>
 </html>
